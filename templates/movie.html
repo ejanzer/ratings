@@ -1,0 +1,21 @@
+{% extends 'master.html' %}
+
+{% block body %}
+<div id="all_movie_ratings">
+    <h2><b>{{ movie.name}}</b>'s Ratings</h2>
+    {% if user_id %}
+        {% if user_rating %}
+        <h3>You gave this movie a rating of {{ user_rating.rating }}</h3>
+        {% endif %}
+    <form method="POST">
+        <input type="text" class="form-control" style="width:200px" placeholder="add or change a rating" name="rating">
+        <input type="submit" class="btn btn-primary btn-sm" style="margin-top:10px;"value="Submit">
+    </form>
+    {% endif %}
+    {% for rating in ratings %}
+    <p>User {{ rating.user.id }} : {{ rating.rating }}
+    {% endfor %}
+</div>
+
+
+{% endblock %}

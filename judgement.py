@@ -77,15 +77,41 @@ def more_users(last_id):
     print next_id
     return render_template("user_list_partial.html", users=user_list, last_id=next_id)
 
-@app.route("/user/<int:id>")
+@app.route("/user/<int:user_id>")
 def user(user_id):
-    # TODO: stuff
-    pass
+    # get the ratings for a single user
+    user = model.session.query(model.User).filter_by(id=user_id).first()
+    user_movies = user.ratings
+    return render_template('user.html', user=user, ratings=user_movies)
 
-@app.route("/movie/<int:id>")
+@app.route("/movie/<int:movie_id>")
 def movie(movie_id):
-    # TODO: everything
-    pass
+    user_id = session.get('user_id')
+    user_rating = None
+    if user_id:
+        user_rating = model.session.query(model.Rating).filter_by(user_id=user_id, movie_id=movie_id).first()
+    movie = model.session.query(model.Movie).filter_by(id=movie_id).first()
+    movie_list = movie.ratings
+    return render_template('movie.html', user_id= user_id, user_rating = user_rating, movie=movie, ratings=movie_list)
+
+@app.route("/movie/<int:movie_id>", methods=["POST"])
+def update_rating(movie_id):
+    logged_user = session.get('user_id')
+    if logged_user:
+        save_rating = request.form.get('rating')
+        user_rating = model.session.query(model.Rating).filter_by(user_id=logged_user, movie_id=movie_id).first()
+        if user_rating:
+            user_rating.rating = save_rating
+            model.session.commit()
+            flash('rating updated.')
+        else:
+            # create a new rating
+            new_rating = model.Rating(user_id=logged_user, movie_id=movie_id, rating=save_rating)
+            model.session.add(new_rating)
+            model.session.commit()
+            flash('you created a new rating.')
+    return redirect(url_for('movie', movie_id=movie_id))
+
 
 if __name__ == "__main__":
     app.run(debug = True)

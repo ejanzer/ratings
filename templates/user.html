@@ -1,0 +1,12 @@
+{% extends 'master.html' %}
+
+{% block body %}
+<div id="user_movie_ratings">
+    <h2>User {{ user.id}}'s Ratings</h2>
+    {% for rating in ratings %}
+    <p>{{ rating.movie.name }} : {{ rating.rating }}
+    {% endfor %}
+</div>
+
+
+{% endblock %}
