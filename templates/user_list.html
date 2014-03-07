@@ -1,10 +1,26 @@
 {% extends 'master.html' %}
 
 {% block body %}
-
-<h1>Movie Ratings</h1>
-{% for user in users %}
-<h2>User {{ user.id }}, age {{ user.age }} has {{ user.ratings|length }} ratings</h2>
-{% endfor %}
-
+<div id="users_list">
+    <h1>Movie Ratings</h1>
+    {% for user in users %}
+    <h2>User {{ user.id }}, age {{ user.age }} has {{ user.ratings|length }} ratings</h2>
+    {% endfor %}
+</div>
+<button id="showmore">Show 10 More</button>
+<script src="/static/js/jquery-2.1.0.js"></script>
+<script>
+    var last_id = {{ last_id }}
+    $('#showmore').on('click', function(event) {
+        last_id += 10;
+        $.ajax({
+            url: "/moreusers/" + last_id,
+            method: "GET"
+        }).done(function(data) {
+            $('#users_list').append(data);
+        }).fail(function() {
+            alert("fail!");
+        });
+    });
+</script>
 {% endblock %}

@@ -44,7 +44,7 @@ def create_user():
 
 @app.route("/login")
 def login():
-    # TODO: Redirect user if already logged in.
+    # TODO: redirect if already logged in?
     return render_template("login.html")
     
 @app.route("/login", methods=["POST"])
@@ -61,10 +61,30 @@ def log_in_user():
         flash("Email and password don't match.")
         return redirect(url_for("login"))
 
+@app.route("/allusers")
+def all_users():
+    # TODO: get all users from the database.
+    # TODO: Make this happen using ajax?
+    last_id = 10
+    user_list = model.session.query(model.User).limit(last_id).all()
+    return render_template("user_list.html", users=user_list, last_id=last_id)
+
+@app.route("/moreusers/<int:last_id>")
+def more_users(last_id):
+    # TODO: make this return the next 10 users?
+    user_list = model.session.query(model.User).filter(model.User.id >= last_id).limit(10).all()
+    next_id = last_id + 10
+    print next_id
+    return render_template("user_list_partial.html", users=user_list, last_id=next_id)
 
 @app.route("/user/<int:id>")
-def user():
+def user(user_id):
     # TODO: stuff
+    pass
+
+@app.route("/movie/<int:id>")
+def movie(movie_id):
+    # TODO: everything
     pass
 
 if __name__ == "__main__":
