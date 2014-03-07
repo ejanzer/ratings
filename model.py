@@ -66,8 +66,8 @@ def connect():
 
 
 def main():
-    """In case we need this for something"""
-    pass
+    connect()
+    Base.metadata.create_all(ENGINE)
 
 if __name__ == "__main__":
     main()
