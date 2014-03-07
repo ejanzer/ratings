@@ -2,6 +2,8 @@ from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy import create_engine
 from sqlalchemy import Column, Integer, String, Date
 from sqlalchemy.orm import sessionmaker
+from sqlalchemy import ForeignKey
+from sqlalchemy.orm import relationship, backref
 
 ENGINE = None
 Session = None
@@ -44,9 +46,12 @@ class Rating(Base):
     __tablename__ = "ratings"
 
     id = Column(Integer, primary_key=True)
-    movie_id = Column(Integer) # This needs to be a foreign key
-    user_id = Column(Integer) # This needs to be a foreign key
+    movie_id = Column(Integer, ForeignKey('movies.id')) # This needs to be a foreign key
+    user_id = Column(Integer, ForeignKey('users.id')) # This needs to be a foreign key
     rating = Column(Integer)
+
+    user = relationship("User", backref=backref("ratings", order_by=id))
+    movie = relationship("Movie", backref=backref("ratings", order_by=id))
 
 ### End class declarations
 

@@ -31,8 +31,6 @@ def load_movies(session):
                 movie = model.Movie(id=words[0], name=title, imdb_url=words[2])
             else:
                 released_year = datetime.datetime.strptime(words[2], '%d-%b-%Y')
-                # print 'id :' + words[0]
-                # print 'released year: %s' % released_year
                 movie = model.Movie(id=words[0], name=title, released_at=released_year, imdb_url=words[3])
             session.add(movie)
         session.commit()
@@ -55,7 +53,7 @@ def main(session):
     load_ratings(session)
     load_users(session)
     load_movies(session)
-    
+
 if __name__ == "__main__":
     s= model.connect()
     main(s)
