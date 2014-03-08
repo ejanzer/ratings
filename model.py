@@ -4,7 +4,7 @@ from sqlalchemy import Column, Integer, String, Date
 from sqlalchemy.orm import sessionmaker, scoped_session
 from sqlalchemy import ForeignKey
 from sqlalchemy.orm import relationship, backref
-
+import correlation
 
 engine = create_engine("sqlite:///ratings.db", echo=False)
 session = scoped_session(sessionmaker(bind=engine, autocommit=False, autoflush=False))
@@ -59,6 +59,26 @@ class Rating(Base):
 # def connect():
 #     print "Getting rid of this function."
 #     return None
+
+def similarity(user1, user2):
+    """Returns the Pearson coefficient for two users."""
+    # Put all user1's ratings into a dictionary with the movie_id as the key.
+    user1_ratings = {}
+    for rating in user1.ratings:
+        user1_ratings[rating.movie_id] = rating
+
+    paired_ratings = []
+
+    # For all the movies that user2 has rated, check if user1 has rated them also.
+    for user2_rating in user2.ratings:
+        user1_rating = user1_ratings.get(user2_rating.movie_id)
+        if user1_rating:
+            # If so, put the two ratings into a tuple and add it to the list paired_ratings.
+            pair = (user1_rating, user2_rating)
+            paired_ratings.append(pair)
+
+    # Return the Pearson coefficient for those two users, calculated in correlation.py.
+    return correlation.pearson(paired_ratings)
 
 def main():
     """In case we need this later."""
