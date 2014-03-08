@@ -65,7 +65,7 @@ def similarity(user1, user2):
     # Put all user1's ratings into a dictionary with the movie_id as the key.
     user1_ratings = {}
     for rating in user1.ratings:
-        user1_ratings[rating.movie_id] = rating
+        user1_ratings[rating.movie_id] = rating.rating
 
     paired_ratings = []
 
@@ -74,7 +74,7 @@ def similarity(user1, user2):
         user1_rating = user1_ratings.get(user2_rating.movie_id)
         if user1_rating:
             # If so, put the two ratings into a tuple and add it to the list paired_ratings.
-            pair = (user1_rating, user2_rating)
+            pair = (user1_rating, user2_rating.rating)
             paired_ratings.append(pair)
 
     # Return the Pearson coefficient for those two users, calculated in correlation.py.
