@@ -47,8 +47,6 @@ class User(Base):
             return 0.0
 
     def predict_rating(self, movie):
-        # ratings is the list ratings for the individ user passed in
-        ratings = self.ratings
         # other rating is the list of all the ratings for the movie passed in
         other_ratings = movie.ratings
         # other users is a list of all the users who are associated with the list of other_ratings

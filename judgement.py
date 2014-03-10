@@ -151,6 +151,16 @@ def update_rating(movie_id):
     if logged_user:
         save_rating = request.form.get('rating')
         user_rating = model.session.query(model.Rating).filter_by(user_id=logged_user, movie_id=movie_id).first()
+
+        if not user_rating:
+            user_rating = model.Rating(user_id=logged_user, movie_id=movie_id)
+            model.session.add(user_rating)
+
+        user_rating.rating = save_rating
+        model.session.commit()
+        
+
+
         if user_rating:
             user_rating.rating = save_rating
             model.session.commit()
