@@ -84,15 +84,55 @@ def user(user_id):
     user_movies = user.ratings
     return render_template('user.html', user=user, ratings=user_movies)
 
-@app.route("/movie/<int:movie_id>")
+@app.route("/movie/<int:movie_id>", methods=["GET"])
 def movie(movie_id):
-    user_id = session.get('user_id')
+    # get the user object
+    user = model.session.query(model.User).get(session.get('user_id'))
     user_rating = None
-    if user_id:
-        user_rating = model.session.query(model.Rating).filter_by(user_id=user_id, movie_id=movie_id).first()
+    rating_numbers = []
+    prediction = None
     movie = model.session.query(model.Movie).filter_by(id=movie_id).first()
-    movie_list = movie.ratings
-    return render_template('movie.html', user_id= user_id, user_rating = user_rating, movie=movie, ratings=movie_list)
+    ratings = movie.ratings
+
+    for r in ratings:
+        if r.user_id == user.id:
+            user_rating = r
+        rating_numbers.append(r.rating)
+    avg_rating = float(sum(rating_numbers))/len(rating_numbers)
+    
+    if not user_rating:
+        prediction = user.predict_rating(movie)
+        effective_rating = prediction
+        print 'effective rating ', effective_rating
+    else:
+        effective_rating = user_rating.rating
+        print 'effective rating', effective_rating
+
+    the_eye = model.session.query(model.User).filter_by(email='eye@gmail.com').one()
+    eye_rating = model.session.query(model.Rating).filter_by(user_id=the_eye.id, movie_id=movie.id).first()
+    print 'eye id ', the_eye.id
+    print 'eye rating ', eye_rating
+
+    if not eye_rating:
+        eye_rating = the_eye.predict_rating(movie)
+        # add to database
+        new_eye_rating = model.Rating(user_id=the_eye.id, movie_id=movie.id, rating=eye_rating)
+        model.session.add(new_eye_rating)
+        model.session.commit()
+
+
+    else:
+        eye_rating = eye_rating.rating
+
+    difference = abs(eye_rating - effective_rating)
+
+    messages = ['I suppose you don\'t have such bad taste after all.',
+    'I regret every decision that I\'ve ever made that has brought me to listen to your opinion.',
+    'Words fail me, as your taste in movies has clearly failed you.', 'That movie is great. For a clown to watch. Idiot.', 'I can\'t even.']
+
+    beratement = messages[int(difference)]
+ 
+    return render_template('movie.html', beratement=beratement, user_id= user.id, user_rating = user_rating, average=avg_rating, prediction=prediction, movie=movie, ratings=ratings)
 
 @app.route("/movie/<int:movie_id>", methods=["POST"])
 def update_rating(movie_id):

@@ -22,6 +22,47 @@ class User(Base):
     age = Column(Integer, nullable=True)
     zipcode = Column(String(15), nullable=True)
 
+    def similarity(self, other):
+        """Returns the Pearson coefficient for two users."""
+        # Put all user1's ratings into a dictionary with the movie_id as the key.
+        self_ratings = {}
+        for rating in self.ratings:
+            self_ratings[rating.movie_id] = rating.rating
+
+        paired_ratings = []
+
+        # For all the movies that other has rated, check if user1 has rated them also.
+        for other_rating in other.ratings:
+            self_rating = self_ratings.get(other_rating.movie_id)
+            if self_rating:
+                # If so, put the two ratings into a tuple and add it to the list paired_ratings.
+                pair = (self_rating, other_rating.rating)
+                paired_ratings.append(pair)
+
+        
+        if paired_ratings:
+            # Return the Pearson coefficient for those two users, calculated in correlation.py.
+            return correlation.pearson(paired_ratings)
+        else:
+            return 0.0
+
+    def predict_rating(self, movie):
+        # ratings is the list ratings for the individ user passed in
+        ratings = self.ratings
+        # other rating is the list of all the ratings for the movie passed in
+        other_ratings = movie.ratings
+        # other users is a list of all the users who are associated with the list of other_ratings
+        similarities = [(self.similarity(r.user),r) for r in other_ratings ]
+
+        # sort the list of similarities so that the most similar other_user is at the top
+        similarities.sort(reverse = True)
+        similarities = [ sim for sim in similarities if sim[0] > 0]
+        if not similarities:
+            return None
+        numerator = sum([r.rating * similarity for similarity, r in similarities])
+        denominator = sum([similarity[0] for similarity in similarities])
+        return numerator/denominator
+
 
 
 # Movie:
@@ -55,30 +96,6 @@ class Rating(Base):
     user = relationship("User", backref=backref("ratings", order_by=id))
     movie = relationship("Movie", backref=backref("ratings", order_by=id))
 
-### End class declarations
-# def connect():
-#     print "Getting rid of this function."
-#     return None
-
-def similarity(user1, user2):
-    """Returns the Pearson coefficient for two users."""
-    # Put all user1's ratings into a dictionary with the movie_id as the key.
-    user1_ratings = {}
-    for rating in user1.ratings:
-        user1_ratings[rating.movie_id] = rating.rating
-
-    paired_ratings = []
-
-    # For all the movies that user2 has rated, check if user1 has rated them also.
-    for user2_rating in user2.ratings:
-        user1_rating = user1_ratings.get(user2_rating.movie_id)
-        if user1_rating:
-            # If so, put the two ratings into a tuple and add it to the list paired_ratings.
-            pair = (user1_rating, user2_rating.rating)
-            paired_ratings.append(pair)
-
-    # Return the Pearson coefficient for those two users, calculated in correlation.py.
-    return correlation.pearson(paired_ratings)
 
 def main():
     """In case we need this later."""
