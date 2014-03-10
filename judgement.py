@@ -8,7 +8,8 @@ app.secret_key = "don'ttellanyoneaaaaaaaah"
 @app.route("/")
 def index():
     user_list = model.session.query(model.User).limit(5).all()
-    return render_template("user_list.html", users=user_list)
+    last_id = 5
+    return render_template("user_list.html", last_id=last_id, user_id=session.get('user_id'), users=user_list)
 
 @app.route("/signup")
 def signup():
@@ -60,6 +61,13 @@ def log_in_user():
     else:
         flash("Email and password don't match.")
         return redirect(url_for("login"))
+
+
+@app.route('/logout')
+def logout():
+    # remove the username from the session if it's there
+    session.pop('user_id', None)
+    return redirect(url_for('index'))
 
 @app.route("/allusers")
 def all_users():
@@ -124,11 +132,14 @@ def movie(movie_id):
     else:
         eye_rating = eye_rating.rating
 
-    difference = abs(eye_rating - effective_rating)
+    if effective_rating:
+        difference = abs(eye_rating - effective_rating)
+    else:
+        difference = 5
 
     messages = ['I suppose you don\'t have such bad taste after all.',
     'I regret every decision that I\'ve ever made that has brought me to listen to your opinion.',
-    'Words fail me, as your taste in movies has clearly failed you.', 'That movie is great. For a clown to watch. Idiot.', 'I can\'t even.']
+    'Words fail me, as your taste in movies has clearly failed you.', 'That movie is great. For a clown to watch. Idiot.', 'I can\'t even.', 'You haven\'t rated enough movies for me to predict your rating.']
 
     beratement = messages[int(difference)]
  

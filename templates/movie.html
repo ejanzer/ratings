@@ -18,7 +18,7 @@
     </form>
     {% endif %}
     {% for rating in ratings %}
-    <p>User {{ rating.user.id }} : {{ rating.rating }}
+    <p><a href="/user/{{rating.user.id}}">User {{ rating.user.id }}</a> : {{ rating.rating }}
     {% endfor %}
 </div>
 

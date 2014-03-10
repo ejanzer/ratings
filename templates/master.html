@@ -4,6 +4,12 @@
         <link href="/static/css/bootstrap.css" rel="stylesheet">
     </head>
     <body>
+        {% if user_id %}
+            <a style="float:right; margin:15px;" href="/logout">Logout</a>
+        {% else %}
+            <a style="float:right; margin:15px;" href="/login">Login</a>
+            <a style="float:right; margin:15px;" href="/signup">Sign Up</a>
+        {% endif %}
         <div class="container">
             <div id="flashed_messages">
                 <ul>
